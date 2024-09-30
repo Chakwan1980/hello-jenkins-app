@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    
+    environment {
+        GITHUB_REPO = 'https://github.com/Chakwan1980/hello-jenkins-app.git'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: "${GITHUB_REPO}", branch: 'main'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo 'Building the app ..'
+                sh 'cat app.txt'
+                echo 'Build successful'
+            }
+        }
+    
+        stage('Test') {
+            steps {
+                script {
+                    echo 'Testing'
+                    def status = sh(script: 'diff app.txt test.txt', returnStatus: true)
+                    if (status != 0) {
+                        error "Test failed!"
+                    }
+                    echo 'Testing successful'
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo 'Packaging..'
+                sh 'tar -cvf app.tar app.txt' // Especifica los archivos o directorios a incluir
+                echo 'Package successful'
+            }
+        }
+    }
+}
